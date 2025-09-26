@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>相続税申告書類処理システム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">相続税申告書類処理システム</h1>
+            <p class="subtitle">書類をアップロードして財産目録を作成</p>
+        </header>
+
+        <main>
+            <!-- アップロードセクション -->
+            <div class="card">
+                <h2 class="section-title">書類アップロード</h2>
+
+                <div id="dropZone" class="upload-area">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <p class="upload-text">
+                        ファイルを選択またはドラッグ&ドロップ<br>
+                        <small>PDF, JPG, PNG, HEIC形式対応</small>
+                    </p>
+                    <input type="file" id="fileInput" class="hidden" multiple accept="image/*,.pdf,.heic,.heif">
+                </div>
+
+                <div id="fileList" class="file-list hidden">
+                    <div id="fileListContent"></div>
+                </div>
+
+                <button id="processButton" class="btn" style="margin-top: 1rem;" disabled>
+                    処理開始
+                </button>
+            </div>
+
+            <!-- 結果セクション -->
+            <div id="resultsSection" class="hidden">
+                <div class="card">
+                    <h2 class="section-title">処理結果</h2>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">土地・建物</div>
+                            <div class="stat-value" id="landCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">預貯金</div>
+                            <div class="stat-value" id="depositCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">株式・投資</div>
+                            <div class="stat-value" id="stockCount">0</div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>区分</th>
+                                    <th>ファイル名</th>
+                                    <th>抽出データ</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultTableBody">
+                                <!-- 動的に生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button id="exportCsvButton" class="btn btn-secondary">
+                            CSVダウンロード
+                        </button>
+                        <button id="exportPdfButton" class="btn btn-secondary">
+                            PDF統合
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ローディング -->
+    <div id="loadingIndicator" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">処理中...</p>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

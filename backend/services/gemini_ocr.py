@@ -116,6 +116,92 @@ class GeminiOCRService:
                 
         return True
     
+    async def extract_text_from_pdf(self, pdf_content: bytes) -> Dict[str, Any]:
+        """
+        PDFファイルからテキストを抽出
+        """
+        try:
+            logger.info(f"Processing PDF, size: {len(pdf_content)} bytes")
+
+            # Convert to base64
+            pdf_base64 = base64.b64encode(pdf_content).decode('utf-8')
+
+            prompt = """このPDFから以下の情報を抽出してJSON形式で返してください：
+            1. 文書の種類（登記簿謄本、残高証明書、保険証券など）
+            2. 主要な情報（金額、日付、名前、住所など）
+            3. その他重要と思われる情報
+
+            出力形式:
+            {
+                "document_type": "文書種類",
+                "extracted_text": "抽出したテキスト全体",
+                "key_information": {
+                    // 文書に応じた重要情報
+                }
+            }"""
+
+            response = self.model.generate_content([
+                prompt,
+                {"mime_type": "application/pdf", "data": pdf_base64}
+            ])
+
+            result = {
+                "document_type": "PDF",
+                "extracted_text": response.text,
+                "success": True
+            }
+
+            logger.info("PDF processing completed successfully")
+            return result
+
+        except Exception as e:
+            logger.error(f"PDF処理エラー: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "extracted_text": ""
+            }
+
+    async def extract_text_from_image(self, image_content: bytes) -> Dict[str, Any]:
+        """
+        画像ファイルからテキストを抽出
+        """
+        try:
+            logger.info(f"Processing image, size: {len(image_content)} bytes")
+
+            # Convert to base64
+            image_base64 = base64.b64encode(image_content).decode('utf-8')
+
+            prompt = """この画像から全てのテキストを抽出してJSON形式で返してください：
+
+            出力形式:
+            {
+                "extracted_text": "抽出したテキスト",
+                "document_type": "推測される文書タイプ"
+            }"""
+
+            response = self.model.generate_content([
+                prompt,
+                {"mime_type": "image/jpeg", "data": image_base64}
+            ])
+
+            result = {
+                "document_type": "IMAGE",
+                "extracted_text": response.text,
+                "success": True
+            }
+
+            logger.info("Image processing completed successfully")
+            return result
+
+        except Exception as e:
+            logger.error(f"画像処理エラー: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "extracted_text": ""
+            }
+
     async def process_general_document(self, image_base64: str, document_type: DocumentCategory) -> Dict[str, Any]:
         """
         一般的な書類のOCR処理
