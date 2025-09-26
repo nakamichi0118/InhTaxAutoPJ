@@ -16,10 +16,11 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:8000",
-        "https://*.pages.dev",
-        "https://*.railway.app",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
         "https://inhtaxautopj.pages.dev",
-        "https://inheritance-tax-processor.pages.dev"
+        "https://inhtaxautopj-nakamichi0118.pages.dev",
+        "https://*.pages.dev"
     ]
     
     # File upload settings
