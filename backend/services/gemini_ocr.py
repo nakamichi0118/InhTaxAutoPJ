@@ -1,6 +1,8 @@
 import google.generativeai as genai
 import base64
 import json
+import tempfile
+import os
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from loguru import logger
@@ -13,7 +15,8 @@ from models.document import DocumentCategory, PassbookTransaction
 class GeminiOCRService:
     def __init__(self):
         genai.configure(api_key=settings.GEMINI_API_KEY)
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        # Use the latest and most capable model for PDF processing
+        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
         
     async def process_passbook(self, image_base64: str, include_handwriting: bool = False) -> List[Dict[str, Any]]:
         """
@@ -118,38 +121,65 @@ class GeminiOCRService:
     
     async def extract_text_from_pdf(self, pdf_content: bytes) -> Dict[str, Any]:
         """
-        PDFファイルからテキストを抽出
+        PDFファイルからテキストを抽出（Geminiのファイルアップロード機能を使用）
         """
+        import tempfile
+        import os
+
         try:
             logger.info(f"Processing PDF, size: {len(pdf_content)} bytes")
 
-            # Convert to base64
-            pdf_base64 = base64.b64encode(pdf_content).decode('utf-8')
+            # Create temporary file for PDF
+            with tempfile.NamedTemporaryFile(mode='wb', suffix='.pdf', delete=False) as tmp_file:
+                tmp_file.write(pdf_content)
+                tmp_path = tmp_file.name
 
-            prompt = """このPDFから以下の情報を抽出してJSON形式で返してください：
-            1. 文書の種類（登記簿謄本、残高証明書、保険証券など）
-            2. 主要な情報（金額、日付、名前、住所など）
-            3. その他重要と思われる情報
+            try:
+                # Upload PDF to Gemini
+                logger.info(f"Uploading PDF to Gemini...")
+                pdf_file = genai.upload_file(tmp_path, mime_type="application/pdf")
+                logger.info(f"PDF uploaded: {pdf_file.name}")
 
-            出力形式:
-            {
-                "document_type": "文書種類",
-                "extracted_text": "抽出したテキスト全体",
-                "key_information": {
-                    // 文書に応じた重要情報
+                prompt = """このPDFファイルから以下の情報を抽出してJSON形式で返してください：
+                1. 文書の種類（登記簿謄本、残高証明書、保険証券、通帳など）
+                2. 主要な情報（金額、日付、名前、住所、取引記録など）
+                3. その他重要と思われる情報
+
+                特に数値データは正確に抽出してください。
+
+                出力形式:
+                {
+                    "document_type": "文書種類",
+                    "extracted_text": "抽出したテキスト全体",
+                    "key_information": {
+                        // 文書に応じた重要情報
+                    }
+                }"""
+
+                # Generate content with uploaded file
+                response = self.model.generate_content([prompt, pdf_file])
+
+                # Delete uploaded file from Gemini
+                genai.delete_file(pdf_file.name)
+                logger.info("PDF deleted from Gemini")
+
+            finally:
+                # Clean up temporary file
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+
+            # Try to parse JSON response
+            try:
+                import json
+                result = json.loads(response.text)
+                result["success"] = True
+            except:
+                # If not JSON, return as text
+                result = {
+                    "document_type": "PDF",
+                    "extracted_text": response.text,
+                    "success": True
                 }
-            }"""
-
-            response = self.model.generate_content([
-                prompt,
-                {"mime_type": "application/pdf", "data": pdf_base64}
-            ])
-
-            result = {
-                "document_type": "PDF",
-                "extracted_text": response.text,
-                "success": True
-            }
 
             logger.info("PDF processing completed successfully")
             return result
@@ -166,30 +196,56 @@ class GeminiOCRService:
         """
         画像ファイルからテキストを抽出
         """
+        import tempfile
+        import os
+
         try:
             logger.info(f"Processing image, size: {len(image_content)} bytes")
 
-            # Convert to base64
-            image_base64 = base64.b64encode(image_content).decode('utf-8')
+            # Create temporary file for image
+            with tempfile.NamedTemporaryFile(mode='wb', suffix='.jpg', delete=False) as tmp_file:
+                tmp_file.write(image_content)
+                tmp_path = tmp_file.name
 
-            prompt = """この画像から全てのテキストを抽出してJSON形式で返してください：
+            try:
+                # Upload image to Gemini
+                logger.info(f"Uploading image to Gemini...")
+                image_file = genai.upload_file(tmp_path, mime_type="image/jpeg")
+                logger.info(f"Image uploaded: {image_file.name}")
 
-            出力形式:
-            {
-                "extracted_text": "抽出したテキスト",
-                "document_type": "推測される文書タイプ"
-            }"""
+                prompt = """この画像から全てのテキストを抽出してJSON形式で返してください。
+                特に金額、日付、名前などの重要情報を正確に抽出してください。
 
-            response = self.model.generate_content([
-                prompt,
-                {"mime_type": "image/jpeg", "data": image_base64}
-            ])
+                出力形式:
+                {
+                    "extracted_text": "抽出したテキスト",
+                    "document_type": "推測される文書タイプ"
+                }"""
 
-            result = {
-                "document_type": "IMAGE",
-                "extracted_text": response.text,
-                "success": True
-            }
+                # Generate content with uploaded file
+                response = self.model.generate_content([prompt, image_file])
+
+                # Delete uploaded file from Gemini
+                genai.delete_file(image_file.name)
+                logger.info("Image deleted from Gemini")
+
+            finally:
+                # Clean up temporary file
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+
+            # Try to parse JSON response
+            try:
+                import json
+                result = json.loads(response.text)
+                result["success"] = True
+            except:
+                # If not JSON, return as text
+                result = {
+                    "document_type": "IMAGE",
+                    "extracted_text": response.text,
+                    "success": True
+                }
 
             logger.info("Image processing completed successfully")
             return result
