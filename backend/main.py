@@ -1,14 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 import os
 from loguru import logger
 
+# Try to load dotenv if available (for local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # In production, environment variables are set by the platform
+
 from api import documents, ocr, health
 from core.config import settings
-
-# Load environment variables
-load_dotenv()
 
 # Configure logging
 logger.add("logs/app.log", rotation="500 MB", retention="10 days", level="INFO")
