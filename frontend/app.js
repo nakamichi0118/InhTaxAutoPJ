@@ -1,6 +1,6 @@
 // 相続税申告書類処理システム - Frontend JavaScript
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = typeof config !== 'undefined' ? config.API_BASE_URL : 'http://localhost:8000/api';
 
 let selectedFiles = [];
 let processedDocuments = [];

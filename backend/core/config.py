@@ -16,8 +16,10 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:8000",
-        "https://*.cloudflarePages.dev",
-        "https://*.railway.app"
+        "https://*.pages.dev",
+        "https://*.railway.app",
+        "https://inhtaxautopj.pages.dev",
+        "https://inheritance-tax-processor.pages.dev"
     ]
     
     # File upload settings
