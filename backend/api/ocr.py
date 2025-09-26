@@ -103,40 +103,61 @@ async def process_batch(
     
     for file in files:
         try:
-            # Process each file
+            logger.info(f"Processing file: {file.filename}, type: {file.content_type}")
+            
+            # Read file content
             contents = await file.read()
-            base64_encoded = base64.b64encode(contents).decode('utf-8')
+            logger.info(f"File size: {len(contents)} bytes")
             
-            # Auto-classify
-            if auto_classify:
+            # Check file type and process accordingly
+            filename_lower = file.filename.lower()
+            
+            if filename_lower.endswith('.pdf'):
+                # Process PDF with new method
+                logger.info(f"Processing as PDF: {file.filename}")
+                ocr_result = await ocr_service.extract_text_from_pdf(contents)
+                
+            elif filename_lower.endswith(('.jpg', '.jpeg', '.png', '.heic', '.heif')):
+                # Process image with new method
+                logger.info(f"Processing as image: {file.filename}")
+                ocr_result = await ocr_service.extract_text_from_image(contents)
+                
+            else:
+                logger.warning(f"Unsupported file type: {file.filename}")
+                raise ValueError(f"Unsupported file type: {file.filename}")
+            
+            # Check if extraction was successful
+            if not ocr_result.get("success", False):
+                raise Exception(f"OCR failed: {ocr_result.get('error', 'Unknown error')}")
+            
+            # Extract document type from result
+            extracted_text = ocr_result.get("extracted_text", "")
+            document_type = DocumentCategory.UNKNOWN
+            
+            # Auto-classify if needed
+            if auto_classify and extracted_text:
+                # Create base64 for classification (if needed)
+                base64_encoded = base64.b64encode(contents).decode('utf-8')
                 document_type = await classifier.classify_document(base64_encoded)
-            else:
-                document_type = DocumentCategory.UNKNOWN
+                logger.info(f"Document classified as: {document_type}")
             
-            # Process document
-            if document_type == DocumentCategory.PASSBOOK:
-                extracted_data = await ocr_service.process_passbook(base64_encoded)
-            else:
-                extracted_data = await ocr_service.process_general_document(
-                    base64_encoded,
-                    document_type
-                )
-            
-            # Create record
+            # Create processed document record
             processed_doc = ProcessedDocument(
                 id=f"{document_type}_{file.filename}_{datetime.now().timestamp()}",
                 original_filename=file.filename,
                 category=document_type,
-                extracted_data=extracted_data,
+                extracted_data=ocr_result,
                 ocr_confidence=0.95
             )
             
             results.documents.append(processed_doc)
             results.processed_count += 1
+            logger.info(f"Successfully processed: {file.filename}")
             
         except Exception as e:
             logger.error(f"ファイル処理エラー ({file.filename}): {str(e)}")
             results.errors.append(f"{file.filename}: {str(e)}")
             results.failed_count += 1
     
+    logger.info(f"Batch processing complete: {results.processed_count} succeeded, {results.failed_count} failed")
     return results.dict()
