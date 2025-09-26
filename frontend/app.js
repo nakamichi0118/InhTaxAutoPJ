@@ -59,9 +59,9 @@ function displayFileList() {
     fileList.classList.remove('hidden');
     fileListContent.innerHTML = selectedFiles.map((file, index) => `
         <div class="flex justify-between items-center py-2 border-b last:border-0">
-            <span class="text-gray-700">📄 ${file.name}</span>
-            <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
-                ✖️ 削除
+            <span class="text-sm text-gray-700">${file.name}</span>
+            <button onclick="removeFile(${index})" class="text-sm text-red-600 hover:text-red-700">
+                削除
             </button>
         </div>
     `).join('');
@@ -100,11 +100,11 @@ processButton.addEventListener('click', async () => {
         processedDocuments = result.documents || [];
         
         displayResults();
-        showNotification('✅ 処理が完了しました！', 'success');
+        showNotification('処理が完了しました', 'success');
 
     } catch (error) {
         console.error('Processing error:', error);
-        showNotification('❌ 処理中にエラーが発生しました', 'error');
+        showNotification('処理中にエラーが発生しました', 'error');
     } finally {
         loadingIndicator.classList.add('hidden');
         processButton.disabled = false;
@@ -151,11 +151,11 @@ function displayResults() {
                     </div>
                 </td>
                 <td class="px-6 py-4 text-sm">
-                    <button onclick="editDocument('${doc.id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                        ✏️ 編集
+                    <button onclick="editDocument('${doc.id}')" class="text-blue-600 hover:text-blue-700 mr-3">
+                        編集
                     </button>
-                    <button onclick="viewDocument('${doc.id}')" class="text-green-600 hover:text-green-900">
-                        👁️ 詳細
+                    <button onclick="viewDocument('${doc.id}')" class="text-gray-600 hover:text-gray-700">
+                        詳細
                     </button>
                 </td>
             </tr>
@@ -206,7 +206,7 @@ function getDataPreview(data) {
 // Export Functions
 exportCsvButton.addEventListener('click', async () => {
     if (processedDocuments.length === 0) {
-        showNotification('⚠️ エクスポートするデータがありません', 'warning');
+        showNotification('エクスポートするデータがありません', 'warning');
         return;
     }
 
@@ -238,11 +238,11 @@ exportCsvButton.addEventListener('click', async () => {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
 
-        showNotification('✅ CSVファイルをダウンロードしました', 'success');
+        showNotification('CSVファイルをダウンロードしました', 'success');
 
     } catch (error) {
         console.error('Export error:', error);
-        showNotification('❌ CSVエクスポート中にエラーが発生しました', 'error');
+        showNotification('CSVエクスポート中にエラーが発生しました', 'error');
     }
 });
 
@@ -253,7 +253,7 @@ function editDocument(docId) {
 
     // TODO: Implement edit modal
     console.log('Edit document:', doc);
-    showNotification('✏️ 編集機能は実装中です', 'info');
+    showNotification('編集機能は実装中です', 'info');
 }
 
 function viewDocument(docId) {
@@ -294,16 +294,16 @@ function showNotification(message, type = 'info') {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 相続税申告書類処理システム - Frontend Ready');
+    console.log('相続税申告書類処理システム - Frontend Ready');
     
     // Check API health
     fetch(`${API_BASE_URL}/health`)
         .then(response => response.json())
         .then(data => {
-            console.log('✅ API Health:', data);
+            console.log('API Health:', data);
         })
         .catch(error => {
-            console.error('❌ API connection failed:', error);
-            showNotification('⚠️ サーバーに接続できません。backendが起動しているか確認してください', 'error');
+            console.error('API connection failed:', error);
+            showNotification('サーバーに接続できません', 'error');
         });
 });
