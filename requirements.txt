@@ -1,0 +1,34 @@
+# FastAPI and server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+pydantic==1.10.13
+
+# Google AI (Gemini)
+google-generativeai==0.3.2
+
+# Azure Document Intelligence (optional for future)
+azure-ai-formrecognizer==3.3.0
+
+# PDF processing
+PyPDF2==3.0.1
+pdf2image==1.16.3
+pillow==10.1.0
+
+# Excel/CSV processing
+openpyxl==3.1.2
+pandas==2.1.3
+
+# Image processing
+python-magic==0.4.27
+
+# CORS for frontend
+fastapi-cors==0.0.6
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# Logging
+loguru==0.7.2
