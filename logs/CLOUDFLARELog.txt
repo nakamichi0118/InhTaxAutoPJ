@@ -1,0 +1,18 @@
+ｖ0
+2025-09-26T01:24:22.375585Z	Cloning repository...
+2025-09-26T01:24:23.040302Z	From https://github.com/nakamichi0118/InhTaxAutoPJ
+2025-09-26T01:24:23.04073Z	 * branch            d79cc32292e9f1b6c11acd62ca96ee486343e278 -> FETCH_HEAD
+2025-09-26T01:24:23.040828Z	
+2025-09-26T01:24:23.070749Z	HEAD is now at d79cc32 Add GitHub Actions workflow, frontend config, and README documentation
+2025-09-26T01:24:23.07119Z	
+2025-09-26T01:24:23.148964Z	
+2025-09-26T01:24:23.149461Z	Using v2 root directory strategy
+2025-09-26T01:24:23.17055Z	Success: Finished cloning repository files
+2025-09-26T01:24:25.008628Z	Checking for configuration in a Wrangler configuration file (BETA)
+2025-09-26T01:24:25.009244Z	
+2025-09-26T01:24:26.125629Z	No wrangler.toml file found. Continuing.
+2025-09-26T01:24:26.125987Z	No build command specified. Skipping build step.
+2025-09-26T01:24:26.126675Z	Note: No functions dir at /functions found. Skipping.
+2025-09-26T01:24:26.126849Z	Validating asset output directory
+2025-09-26T01:24:26.127072Z	Error: Output directory "​frontend" not found.
+2025-09-26T01:24:27.523185Z	Failed: build output directory not found
