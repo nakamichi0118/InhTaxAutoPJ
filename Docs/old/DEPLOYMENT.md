@@ -22,7 +22,7 @@
 
 ```bash
 # リモートリポジトリを追加
-git remote add origin https://github.com/YOUR_USERNAME/InhTaxAutoPJ.git
+git remote add origin https://github.com/nakamichi0118/InhTaxAutoPJ.git
 
 # プッシュ
 git push -u origin main
@@ -50,7 +50,7 @@ PYTHON_VERSION=3.11
 
 ### 3. デプロイの確認
 
-- Railwayは自動的に`railway.toml`を検出してデプロイを開始
+- Railwayは自動的に `railway.toml`を検出してデプロイを開始
 - デプロイ完了後、提供されたURLでアクセス可能
 - 例: `https://inhtaxautopj.up.railway.app`
 
@@ -155,19 +155,21 @@ curl https://inhtaxautopj.pages.dev
 
 ### Railwayの問題
 
-1. **ビルド失敗**: 
+1. **ビルド失敗**:
+
    - `requirements.txt`の依存関係を確認
    - Pythonバージョンを確認
-
 2. **環境変数が認識されない**:
+
    - Railwayダッシュボードで環境変数を再設定
 
 ### Cloudflare Pagesの問題
 
 1. **ビルド失敗**:
-   - ビルド出力ディレクトリが`frontend`に設定されているか確認
 
+   - ビルド出力ディレクトリが `frontend`に設定されているか確認
 2. **CORSエラー**:
+
    - RailwayバックエンドのCORS設定を確認
    - `backend/core/config.py`にCloudflare PagesのURLを追加
 
@@ -187,7 +189,7 @@ curl https://inhtaxautopj.pages.dev
 
 ### 環境変数の管理
 
-- **絶対に**`.env`ファイルをGitHubにコミットしない
+- **絶対に** `.env`ファイルをGitHubにコミットしない
 - Railway/Cloudflareの環境変数管理機能を使用
 - APIキーは定期的にローテーション
 
